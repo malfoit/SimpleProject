@@ -1,8 +1,16 @@
 package model
 
+import "time"
+
+type UserInfo struct {
+	Name  string
+	Email string
+}
+
 type User struct {
-	Name            string
-	Email           string
-	Password        string
-	PasswordConfirm string
+	ID           string
+	UserInfo     UserInfo
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

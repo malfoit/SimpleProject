@@ -13,7 +13,7 @@ service UserV1 {
   rpc Get(GetRequest) returns (GetResponse);
   rpc Update(UpdateRequest) returns (google.protobuf.Empty);
   rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
-  rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
   rpc ValidateCredentials(ValidateCredentialsRequest) returns (ValidateCredentialsResponse);
 }
 
@@ -48,14 +48,19 @@ message GetResponse {
 }
 
 message UpdateRequest {
-  google.protobuf.StringValue name = 1;
-  google.protobuf.StringValue email = 2;
+  string id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
 }
 
 message UpdatePasswordRequest {
   string id = 1;
   string password = 2;
   string password_confirm = 3;
+}
+
+message DeleteRequest {
+  string id = 1;
 }
 
 message ValidateCredentialsRequest {
