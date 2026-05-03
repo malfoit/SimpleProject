@@ -30,7 +30,7 @@ func (h *handler) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cr
 		req.GetPasswordConfirm(),
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	return &desc.CreateResponse{Id: id}, nil
 }
@@ -38,7 +38,7 @@ func (h *handler) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cr
 func (h *handler) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	u, err := h.userService.Get(ctx, req.GetId())
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, err.Error())
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 	return &desc.GetResponse{
 		User: &desc.User{
@@ -64,7 +64,7 @@ func (h *handler) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb
 		email = &s
 	}
 	if err := h.userService.Update(ctx, req.GetId(), name, email); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -72,14 +72,14 @@ func (h *handler) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb
 func (h *handler) UpdatePassword(ctx context.Context, req *desc.UpdatePasswordRequest) (*emptypb.Empty, error) {
 	err := h.userService.UpdatePassword(ctx, req.GetId(), req.GetPassword(), req.GetPasswordConfirm())
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (h *handler) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	if err := h.userService.Delete(ctx, req.GetId()); err != nil {
-		return nil, status.Errorf(codes.NotFound, err.Error())
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -87,7 +87,7 @@ func (h *handler) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb
 func (h *handler) ValidateCredentials(ctx context.Context, req *desc.ValidateCredentialsRequest) (*desc.ValidateCredentialsResponse, error) {
 	userID, valid, err := h.userService.ValidateCredentials(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "credential validation failed")
+		return nil, status.Error(codes.Internal, "credential validation failed")
 	}
 	return &desc.ValidateCredentialsResponse{
 		Valid:  valid,

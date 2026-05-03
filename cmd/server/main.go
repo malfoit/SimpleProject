@@ -1,39 +1,41 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	desc "github.com/malfoit/SimpleProject/pkg/user/v1"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	container := NewContainer()
+	c := newContainer()
 
-	ctx := context.Background()
-
-	synced, err := container.SyncService.SyncUsers(ctx)
+	addr := fmt.Sprintf(":%s", c.config.GRPC.Port)
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Printf("Sync failed: %v", err)
-	} else {
-		log.Printf("Synced %d users", synced)
+		log.Fatalf("failed to listen on %s: %v", addr, err)
 	}
 
 	grpcServer := grpc.NewServer()
-	desc.RegisterUserV1Server(grpcServer, container.UserHandler)
+	desc.RegisterUserV1Server(grpcServer, c.userHandler)
 
-	addr := fmt.Sprintf(":%s", container.Config.GRPC.Port)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	listener, err := net.Listen("tcp", addr)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
+	go func() {
+		log.Printf("gRPC server listening on %s", addr)
+		if err = grpcServer.Serve(listener); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
-	log.Printf("Server started on %s", addr)
-	if err = grpcServer.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	<-quit
+	log.Println("shutting down gRPC server...")
+	grpcServer.GracefulStop()
+	log.Println("server stopped")
 }
