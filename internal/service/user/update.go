@@ -3,36 +3,30 @@ package user
 import (
 	"context"
 	"errors"
-	"net/mail"
-	"strings"
 
 	userRepo "github.com/malfoit/SimpleProject/internal/repository/user"
 )
 
+// Update обновляет имя и/или email пользователя.
+//
+// Шаги:
+//  1. Если name != nil:
+//     - обрежь пробелы (strings.TrimSpace)
+//     - проверь длину: от 3 до 50 символов
+//     - запиши обрезанное значение обратно в *name
+//  2. Если email != nil:
+//     - обрежь пробелы
+//     - проверь формат через mail.ParseAddress (пакет "net/mail")
+//     - запиши обрезанное значение обратно в *email
+//  3. Вызови s.repo.Update(ctx, id, name, email)
+//  4. Обработай ошибки репозитория:
+//     - userRepo.ErrNotFound    → "user not found"
+//     - userRepo.ErrAlreadyExists → "email already taken"
+//     - остальные → пробрось как есть
 func (s *userService) Update(ctx context.Context, id string, name, email *string) error {
-	if name != nil {
-		trimmed := strings.TrimSpace(*name)
-		if len(trimmed) < 3 || len(trimmed) > 50 {
-			return errors.New("name must be between 3 and 50 characters")
-		}
-		*name = trimmed
-	}
-	if email != nil {
-		trimmed := strings.TrimSpace(*email)
-		if _, err := mail.ParseAddress(trimmed); err != nil {
-			return errors.New("invalid email format")
-		}
-		*email = trimmed
-	}
+	// TODO: реализуй валидацию и обновление
 
-	if err := s.repo.Update(ctx, id, name, email); err != nil {
-		switch {
-		case errors.Is(err, userRepo.ErrNotFound):
-			return errors.New("user not found")
-		case errors.Is(err, userRepo.ErrAlreadyExists):
-			return errors.New("email already taken")
-		}
-		return err
-	}
-	return nil
+	_ = userRepo.ErrNotFound
+	_ = userRepo.ErrAlreadyExists
+	return errors.New("not implemented")
 }

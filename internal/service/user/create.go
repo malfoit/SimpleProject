@@ -3,46 +3,29 @@ package user
 import (
 	"context"
 	"errors"
-	"net/mail"
-	"strings"
-
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/malfoit/SimpleProject/internal/model"
 	userRepo "github.com/malfoit/SimpleProject/internal/repository/user"
 )
 
+// Create создаёт нового пользователя после валидации и хэширования пароля.
+//
+// Шаги:
+//  1. Обрежь пробелы у name и email (strings.TrimSpace)
+//  2. Валидируй name: длина от 3 до 50 символов
+//  3. Валидируй email через mail.ParseAddress из пакета "net/mail"
+//  4. Валидируй password: длина от 8 до 72 символов
+//  5. Проверь, что password == passwordConfirm
+//  6. Захэшируй пароль через bcrypt.GenerateFromPassword (пакет "golang.org/x/crypto/bcrypt")
+//     Используй bcrypt.DefaultCost
+//  7. Создай *model.User с UserInfo и PasswordHash
+//  8. Вызови s.repo.Create — если вернул userRepo.ErrAlreadyExists,
+//     оберни в читаемую ошибку (не пропускай sentinel наружу)
+//  9. Верни user.ID (репозиторий заполняет его при сохранении)
 func (s *userService) Create(ctx context.Context, name, email, password, passwordConfirm string) (string, error) {
-	name = strings.TrimSpace(name)
-	email = strings.TrimSpace(email)
+	// TODO: реализуй валидацию и создание пользователя
 
-	if len(name) < 3 || len(name) > 50 {
-		return "", errors.New("name must be between 3 and 50 characters")
-	}
-	if _, err := mail.ParseAddress(email); err != nil {
-		return "", errors.New("invalid email format")
-	}
-	if len(password) < 8 || len(password) > 72 {
-		return "", errors.New("password must be between 8 and 72 characters")
-	}
-	if password != passwordConfirm {
-		return "", errors.New("passwords do not match")
-	}
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", errors.New("failed to hash password")
-	}
-
-	u := &model.User{
-		UserInfo:     model.UserInfo{Name: name, Email: email},
-		PasswordHash: string(hash),
-	}
-	if err = s.repo.Create(ctx, u); err != nil {
-		if errors.Is(err, userRepo.ErrAlreadyExists) {
-			return "", errors.New("user with this email already exists")
-		}
-		return "", err
-	}
-	return u.ID, nil
+	_ = model.User{} // убери эту строку когда начнёшь реализацию
+	_ = userRepo.ErrAlreadyExists
+	return "", errors.New("not implemented")
 }
