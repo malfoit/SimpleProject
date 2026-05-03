@@ -22,7 +22,10 @@ generate-api:
 test:
 	go test ./...
 
+test-clean:
+	go clean -testcache && go test ./...
+
 build:
 	GOOS=linux GOARCH=amd64 go build -o service_linux ./cmd/server
 
-.PHONY: install-deps get-deps generate-api test build
+.PHONY: install-deps get-deps generate-api test test-clean build
