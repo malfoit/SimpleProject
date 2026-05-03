@@ -11,6 +11,8 @@ service UserV1 {
 message CreateUserRequest {
   string email = 1;
   string name = 2;
+  string password = 3;
+  string password_confirm = 4;
 };
 
 message CreateUserResponse {
